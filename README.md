@@ -39,7 +39,7 @@ data/raw/malicious_phish.csv
 macOS veya Linux:
 
 ```bash
-cd /Users/aecoskun/Desktop/AI_URL_Guard_Yeni
+cd /Users/aecoskun/Desktop/MaliciousURLGuard
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -48,7 +48,7 @@ pip install -r requirements.txt
 Windows:
 
 ```bat
-cd C:\path\to\AI_URL_Guard_Yeni
+cd C:\path\to\MaliciousURLGuard
 py -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
