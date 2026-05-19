@@ -75,17 +75,26 @@ st.markdown(
     color: #eef8ff;
     margin-bottom: .75rem;
 }
+.panel-title.centered { text-align: center; }
+.panel-note {
+    color: #cbd5e1;
+    text-align: center;
+    line-height: 1.45;
+    margin: .1rem 0 1rem;
+}
 .example-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: .5rem;
-    margin-bottom: .75rem;
+    gap: .75rem;
+    margin: .35rem 0 1rem;
 }
 .stButton > button {
     border-radius: 8px;
     min-height: 2.55rem;
     font-weight: 740;
     border: 1px solid rgba(148, 163, 184, .22);
+    justify-content: center;
+    text-align: center;
 }
 .stTextInput input {
     background: rgba(2, 6, 23, .68);
@@ -235,11 +244,14 @@ def cached_metrics():
 
 def add_history(prediction):
     item = {
-        "time": datetime.now().strftime("%H:%M"),
+        "time": datetime.now().strftime("%d.%m.%Y %H:%M"),
         "url": prediction.raw_url,
+        "canonical": prediction.canonical_url,
         "risk": prediction.probability_malicious,
         "label": prediction.label,
     }
+    if st.session_state.history and st.session_state.history[0].get("canonical") == item["canonical"]:
+        return
     st.session_state.history = ([item] + st.session_state.history)[:8]
 
 
@@ -253,6 +265,106 @@ def risk_band(probability):
 
 def fmt_pct(value):
     return f"%{value * 100:.2f}"
+
+
+FEATURE_LABELS = {
+    "url_length": "URL uzunluğu",
+    "hostname_length": "Alan adı uzunluğu",
+    "path_length": "Yol uzunluğu",
+    "path_length_no_slash": "Slash temizlenmiş yol uzunluğu",
+    "query_length": "Sorgu uzunluğu",
+    "num_dots": "Nokta sayısı",
+    "num_hyphens": "Tire sayısı",
+    "num_underscores": "Alt çizgi sayısı",
+    "num_slashes": "Slash sayısı",
+    "num_digits": "URL içindeki rakam sayısı",
+    "num_params": "Parametre sayısı",
+    "num_fragments": "Fragment işareti sayısı",
+    "num_at_symbols": "@ işareti sayısı",
+    "num_equals": "Eşittir işareti sayısı",
+    "num_ampersands": "Ampersand işareti sayısı",
+    "num_percent": "Yüzde işareti sayısı",
+    "num_subdomains": "Alt alan adı sayısı",
+    "subdomain_depth": "Alt alan derinliği",
+    "has_ip": "IP adresi kullanıyor mu",
+    "has_at_symbol": "@ işareti içeriyor mu",
+    "has_double_slash": "Fazladan çift slash var mı",
+    "has_www": "WWW ile başlıyor mu",
+    "has_port": "Özel port kullanıyor mu",
+    "port_number": "Port numarası",
+    "has_hex_encoding": "Kodlanmış karakter içeriyor mu",
+    "has_punycode": "Punycode içeriyor mu",
+    "is_shortened": "URL kısaltıcı mı",
+    "has_suspicious_tld": "Şüpheli uzantı mı",
+    "has_trusted_tld": "Güvenilir uzantı mı",
+    "is_net_tld": ".net uzantısı mı",
+    "is_edu_tld": ".edu uzantısı mı",
+    "has_abused_country_tld": "Riskli ülke uzantısı mı",
+    "tld_length": "Uzantı uzunluğu",
+    "url_entropy": "URL karmaşıklık skoru",
+    "domain_entropy": "Alan adı karmaşıklık skoru",
+    "domain_core_entropy": "Ana domain karmaşıklık skoru",
+    "domain_core_length": "Ana domain uzunluğu",
+    "digit_ratio": "Rakam oranı",
+    "letter_ratio": "Harf oranı",
+    "special_char_ratio": "Özel karakter oranı",
+    "vowel_ratio": "Sesli harf oranı",
+    "num_tokens": "Parça sayısı",
+    "avg_token_length": "Ortalama parça uzunluğu",
+    "max_token_length": "En uzun parça uzunluğu",
+    "max_consecutive_digits": "En uzun ardışık rakam",
+    "num_suspicious_keywords": "Şüpheli kelime sayısı",
+    "has_suspicious_keywords": "Şüpheli kelime içeriyor mu",
+    "brand_in_url": "Marka adı URL içinde mi",
+    "brand_in_subdomain": "Marka adı alt alanda mı",
+    "brand_in_path": "Marka adı yolda mı",
+    "url_depth": "URL yol derinliği",
+    "effective_url_depth": "Temizlenmiş yol derinliği",
+    "trailing_slash": "Sonda slash var mı",
+    "is_root_path": "Ana sayfa yolu mu",
+    "domain_has_digits": "Domain rakam içeriyor mu",
+    "has_exec_extension": "Çalıştırılabilir dosya uzantısı mı",
+    "has_script_extension": "Script dosyası uzantısı mı",
+    "is_valid_url": "Geçerli URL mi",
+}
+
+BINARY_FEATURES = {
+    "has_ip",
+    "has_at_symbol",
+    "has_double_slash",
+    "has_www",
+    "has_port",
+    "has_hex_encoding",
+    "has_punycode",
+    "is_shortened",
+    "has_suspicious_tld",
+    "has_trusted_tld",
+    "is_net_tld",
+    "is_edu_tld",
+    "has_abused_country_tld",
+    "has_suspicious_keywords",
+    "brand_in_url",
+    "brand_in_subdomain",
+    "brand_in_path",
+    "trailing_slash",
+    "is_root_path",
+    "domain_has_digits",
+    "has_exec_extension",
+    "has_script_extension",
+    "is_valid_url",
+}
+
+
+def feature_label(key):
+    return FEATURE_LABELS.get(key, key.replace("_", " ").capitalize())
+
+
+def feature_value(key, val):
+    if key in BINARY_FEATURES:
+        return "Evet" if int(val) == 1 else "Hayır"
+    if isinstance(val, float):
+        return f"{val:.6f}" if abs(val) < 1 else f"{val:.4f}"
+    return str(val)
 
 
 try:
@@ -274,7 +386,7 @@ st.markdown(
     """
 <div class="hero">
   <div class="title">Malicious URL Guard</div>
-  <div class="subtitle">URL yapısını, alan adını ve taklit sinyallerini analiz ederek bağlantı için açıklanabilir risk tahmini üretir.</div>
+  <div class="subtitle">Bağlantıyı açmadan önce riskini hızlıca kontrol edin.</div>
 </div>
 """,
     unsafe_allow_html=True,
@@ -290,13 +402,16 @@ examples = {
 main_col, side_col = st.columns([1.4, .6], gap="large")
 
 with main_col:
-    st.markdown('<div class="panel"><div class="panel-title">Örnek URL deneme</div>', unsafe_allow_html=True)
-    example_cols = st.columns(len(examples))
+    st.markdown(
+        '<div class="panel"><div class="panel-note">Aşağıdaki butonlara tıklayarak örnek URL denemeleri yapabilirsiniz.</div>',
+        unsafe_allow_html=True,
+    )
+    example_cols = st.columns(len(examples), gap="medium")
     for col, (label, value) in zip(example_cols, examples.items()):
         if col.button(label, use_container_width=True):
             st.session_state.url_input = value
 
-    st.markdown('<div class="section-title">URL sorgulama</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">URL Sorgulama</div>', unsafe_allow_html=True)
     with st.form("analysis_form"):
         url_input = st.text_input("URL", key="url_input", placeholder="https://example.com/login?token=123")
         analyze = st.form_submit_button("Analiz et", type="primary", use_container_width=True)
@@ -340,7 +455,7 @@ with main_col:
             unsafe_allow_html=True,
         )
 
-        tab_summary, tab_anatomy, tab_features = st.tabs(["Özeti", "Anatomisi", "Tüm özellikleri"])
+        tab_summary, tab_anatomy, tab_features = st.tabs(["Özeti", "Anatomisi", "Tüm Özellikleri"])
         with tab_summary:
             if prediction.notes:
                 for note in prediction.notes:
@@ -373,19 +488,16 @@ with main_col:
             chips = ['<div class="feature-grid">']
             for key in payload["feature_cols"]:
                 val = prediction.features.get(key, 0)
-                if isinstance(val, float):
-                    val_text = f"{val:.6f}" if abs(val) < 1 else f"{val:.4f}"
-                else:
-                    val_text = str(val)
+                val_text = feature_value(key, val)
                 chips.append(
-                    f'<div class="feature-chip"><div class="feature-name">{html.escape(key)}</div>'
+                    f'<div class="feature-chip"><div class="feature-name">{html.escape(feature_label(key))}</div>'
                     f'<div class="feature-val">{html.escape(val_text)}</div></div>'
                 )
             chips.append("</div>")
             st.markdown("".join(chips), unsafe_allow_html=True)
 
 with side_col:
-    st.markdown('<div class="panel"><div class="panel-title">Geçmiş</div>', unsafe_allow_html=True)
+    st.markdown('<div class="panel"><div class="panel-title centered">Geçmiş</div>', unsafe_allow_html=True)
     if st.session_state.history:
         st.markdown('<div class="history-list">', unsafe_allow_html=True)
         for item in st.session_state.history:

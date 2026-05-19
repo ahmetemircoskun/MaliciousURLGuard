@@ -1,4 +1,5 @@
 from url_guard.features import extract_features
+from url_guard.inference import _rule_adjustment
 from url_guard.url_tools import canonicalize_url
 
 
@@ -19,3 +20,9 @@ def test_brand_impersonation_features():
     assert features["brand_in_subdomain"] == 1
     assert features["brand_in_url"] == 1
 
+
+def test_low_risk_edu_domain_is_capped_without_www():
+    features = extract_features("https://mit.edu")
+    adjusted, notes = _rule_adjustment("https://mit.edu", "https://mit.edu", features, 0.91)
+    assert adjusted < 0.55
+    assert any(".edu" in note for note in notes)
