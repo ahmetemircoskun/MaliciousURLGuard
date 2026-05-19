@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+.mplconfig/
