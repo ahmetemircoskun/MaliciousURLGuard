@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import joblib
-import numpy as np
+import pandas as pd
 
 from .config import BRANDS, DEFAULT_THRESHOLD
 from .features import extract_features
@@ -55,6 +55,10 @@ def _rule_adjustment(raw_url: str, canonical_url: str, features: dict[str, float
         prob = max(prob, 0.78)
         notes.append("@ işareti host bilgisini yanıltıcı gösterebilir.")
 
+    if features.get("is_shortened", 0):
+        prob = max(prob, 0.60)
+        notes.append("URL kısaltıcı gerçek hedefi gizlediği için temkinli işaretlendi.")
+
     first_party_brand = parts.domain_core in BRANDS
     low_risk_brand_root = (
         first_party_brand
@@ -83,9 +87,8 @@ def predict_url(url: str, payload: dict, scaler) -> Prediction:
     features = extract_features(raw)
     feature_cols = payload["feature_cols"]
     threshold = float(payload.get("threshold", DEFAULT_THRESHOLD))
-    x = np.array([[features.get(col, 0.0) for col in feature_cols]])
+    x = pd.DataFrame([[features.get(col, 0.0) for col in feature_cols]], columns=feature_cols)
     model_prob = float(payload["model"].predict_proba(scaler.transform(x))[0][1])
     prob_mal, notes = _rule_adjustment(raw, parts.canonical, features, model_prob)
     label = int(prob_mal >= threshold)
     return Prediction(raw, parts.canonical, label, prob_mal, 1.0 - prob_mal, threshold, features, notes)
-
