@@ -7,6 +7,7 @@ ENV/
 
 .ipynb_checkpoints/
 */.ipynb_checkpoints/*
+.pytest_cache/
 
 .DS_Store
 Thumbs.db
