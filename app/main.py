@@ -560,10 +560,14 @@ with side_col:
 st.markdown(
     f"""
 <div class="bottom-info">
-  <span><strong>Test ROC-AUC:</strong> {metrics.get("roc_auc", 0):.3f}</span>
-  <span><strong>Precision:</strong> {metrics.get("precision", 0):.3f}</span>
-  <span><strong>Recall:</strong> {metrics.get("recall", 0):.3f}</span>
-  <span><strong>Temizlenmiş Veri:</strong> {int(metrics.get("rows", 0)):,} satır</span>
+  <span><strong>Temizlenmiş Veri Satırı:</strong> {int(metrics.get("rows", 0)):,}</span>
+  <span><strong>Kötücül Oranı:</strong> {metrics.get("malicious_ratio", 0):.4f}</span>
+  <span><strong>Accuracy:</strong> {metrics.get("accuracy", 0):.4f}</span>
+  <span><strong>Precision:</strong> {metrics.get("precision", 0):.4f}</span>
+  <span><strong>Recall:</strong> {metrics.get("recall", 0):.4f}</span>
+  <span><strong>F1:</strong> {metrics.get("f1", 0):.4f}</span>
+  <span><strong>ROC-AUC:</strong> {metrics.get("roc_auc", 0):.4f}</span>
+  <span><strong>PR-AUC:</strong> {metrics.get("pr_auc", 0):.4f}</span>
   <span>Karar destek amaçlıdır; kritik güvenlik kararlarında tek kaynak olarak kullanılmamalıdır.</span>
 </div>
 """,

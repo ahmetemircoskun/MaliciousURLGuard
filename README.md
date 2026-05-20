@@ -45,7 +45,7 @@ Eğitim hattı, public repoya uygun olmayan secret formatlı URL parametrelerini
 ### macOS / Linux
 
 ```bash
-cd /Users/aecoskun/Desktop/MaliciousURLGuard
+cd /path/to/MaliciousURLGuard
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
