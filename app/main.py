@@ -424,6 +424,8 @@ if "history" not in st.session_state:
     st.session_state.history = []
 if "last_prediction" not in st.session_state:
     st.session_state.last_prediction = None
+if "pending_example_url" in st.session_state:
+    st.session_state.url_input = st.session_state.pop("pending_example_url")
 
 st.markdown(
     """
@@ -445,14 +447,15 @@ examples = {
 main_col, side_col = st.columns([1.4, .6], gap="large")
 
 with main_col:
-    st.markdown('<div class="panel"><div class="section-title">URL Sorgulama</div>', unsafe_allow_html=True)
+    st.markdown('<div class="panel">', unsafe_allow_html=True)
     with st.form("analysis_form"):
         url_input = st.text_input("URL", key="url_input", placeholder="https://example.com/login?token=123")
         analyze = st.form_submit_button("Analiz Et", type="primary", use_container_width=True)
     example_cols = st.columns(len(examples), gap="medium")
     for col, (label, value) in zip(example_cols, examples.items()):
         if col.button(label, use_container_width=True):
-            st.session_state.url_input = value
+            st.session_state.pending_example_url = value
+            st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
 
     if analyze:
