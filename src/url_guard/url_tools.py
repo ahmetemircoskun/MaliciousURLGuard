@@ -81,6 +81,7 @@ def split_host(host: str) -> tuple[str, str, str, str]:
     multi_suffixes = {
         ("co", "uk"), ("com", "br"), ("com", "au"), ("co", "jp"),
         ("co", "in"), ("com", "tr"), ("com", "cn"), ("co", "za"),
+        ("edu", "tr"), ("gov", "tr"), ("k12", "tr"),
     }
     if len(labels) >= 3 and tuple(labels[-2:]) in multi_suffixes:
         tld_labels = labels[-2:]
@@ -138,4 +139,3 @@ def canonicalize_url(url: str) -> UrlParts:
 
     tld, registrable, core, subdomain = split_host(host)
     return UrlParts(raw, canonical, scheme, host, path, query, port, tld, registrable, core, subdomain, True)
-

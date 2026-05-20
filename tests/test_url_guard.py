@@ -1,5 +1,5 @@
 from url_guard.features import extract_features
-from url_guard.inference import _rule_adjustment
+from url_guard.inference import load_artifacts, predict_url
 from url_guard.url_tools import canonicalize_url
 
 
@@ -21,8 +21,17 @@ def test_brand_impersonation_features():
     assert features["brand_in_url"] == 1
 
 
-def test_low_risk_edu_domain_is_capped_without_www():
-    features = extract_features("https://mit.edu")
-    adjusted, notes = _rule_adjustment("https://mit.edu", "https://mit.edu", features, 0.91)
-    assert adjusted < 0.55
-    assert any(".edu" in note for note in notes)
+def test_edu_tr_domain_is_parsed_as_registrable_domain():
+    parts = canonicalize_url("https://gazi.edu.tr")
+    features = extract_features("https://gazi.edu.tr")
+    assert parts.registrable_domain == "gazi.edu.tr"
+    assert parts.domain_core == "gazi"
+    assert parts.tld == ".edu.tr"
+    assert features["is_edu_tld"] == 1
+    assert features["has_trusted_tld"] == 1
+
+
+def test_gazi_edu_tr_prediction_is_safe():
+    payload, scaler = load_artifacts(".")
+    prediction = predict_url("https://gazi.edu.tr", payload, scaler)
+    assert prediction.label == 0

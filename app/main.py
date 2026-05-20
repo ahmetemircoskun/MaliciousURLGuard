@@ -76,17 +76,11 @@ st.markdown(
     margin-bottom: .75rem;
 }
 .panel-title.centered { text-align: center; }
-.panel-note {
-    color: #cbd5e1;
-    text-align: center;
-    line-height: 1.45;
-    margin: .1rem 0 1rem;
-}
 .example-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: .75rem;
-    margin: .35rem 0 1rem;
+    margin-top: .85rem;
 }
 .stButton > button {
     border-radius: 8px;
@@ -194,6 +188,7 @@ st.markdown(
     padding: .58rem .65rem;
     background: rgba(2, 6, 23, .34);
     min-height: 68px;
+    cursor: help;
 }
 .feature-name { color: #94a3b8; font-size: .72rem; overflow-wrap: anywhere; }
 .feature-val { color: #f8fafc; font-size: .9rem; font-weight: 720; overflow-wrap: anywhere; margin-top: .25rem; }
@@ -268,65 +263,109 @@ def fmt_pct(value):
 
 
 FEATURE_LABELS = {
-    "url_length": "URL uzunluğu",
-    "hostname_length": "Alan adı uzunluğu",
-    "path_length": "Yol uzunluğu",
-    "path_length_no_slash": "Slash temizlenmiş yol uzunluğu",
-    "query_length": "Sorgu uzunluğu",
-    "num_dots": "Nokta sayısı",
-    "num_hyphens": "Tire sayısı",
-    "num_underscores": "Alt çizgi sayısı",
-    "num_slashes": "Slash sayısı",
-    "num_digits": "URL içindeki rakam sayısı",
-    "num_params": "Parametre sayısı",
-    "num_fragments": "Fragment işareti sayısı",
-    "num_at_symbols": "@ işareti sayısı",
-    "num_equals": "Eşittir işareti sayısı",
-    "num_ampersands": "Ampersand işareti sayısı",
-    "num_percent": "Yüzde işareti sayısı",
-    "num_subdomains": "Alt alan adı sayısı",
-    "subdomain_depth": "Alt alan derinliği",
-    "has_ip": "IP adresi kullanıyor mu",
-    "has_at_symbol": "@ işareti içeriyor mu",
-    "has_double_slash": "Fazladan çift slash var mı",
-    "has_www": "WWW ile başlıyor mu",
-    "has_port": "Özel port kullanıyor mu",
-    "port_number": "Port numarası",
-    "has_hex_encoding": "Kodlanmış karakter içeriyor mu",
-    "has_punycode": "Punycode içeriyor mu",
-    "is_shortened": "URL kısaltıcı mı",
-    "has_suspicious_tld": "Şüpheli uzantı mı",
-    "has_trusted_tld": "Güvenilir uzantı mı",
-    "is_net_tld": ".net uzantısı mı",
-    "is_edu_tld": ".edu uzantısı mı",
-    "has_abused_country_tld": "Riskli ülke uzantısı mı",
-    "tld_length": "Uzantı uzunluğu",
-    "url_entropy": "URL karmaşıklık skoru",
-    "domain_entropy": "Alan adı karmaşıklık skoru",
-    "domain_core_entropy": "Ana domain karmaşıklık skoru",
-    "domain_core_length": "Ana domain uzunluğu",
-    "digit_ratio": "Rakam oranı",
-    "letter_ratio": "Harf oranı",
-    "special_char_ratio": "Özel karakter oranı",
-    "vowel_ratio": "Sesli harf oranı",
-    "num_tokens": "Parça sayısı",
-    "avg_token_length": "Ortalama parça uzunluğu",
-    "max_token_length": "En uzun parça uzunluğu",
-    "max_consecutive_digits": "En uzun ardışık rakam",
-    "num_suspicious_keywords": "Şüpheli kelime sayısı",
-    "has_suspicious_keywords": "Şüpheli kelime içeriyor mu",
-    "brand_in_url": "Marka adı URL içinde mi",
-    "brand_in_subdomain": "Marka adı alt alanda mı",
-    "brand_in_path": "Marka adı yolda mı",
-    "url_depth": "URL yol derinliği",
-    "effective_url_depth": "Temizlenmiş yol derinliği",
-    "trailing_slash": "Sonda slash var mı",
-    "is_root_path": "Ana sayfa yolu mu",
-    "domain_has_digits": "Domain rakam içeriyor mu",
-    "has_exec_extension": "Çalıştırılabilir dosya uzantısı mı",
-    "has_script_extension": "Script dosyası uzantısı mı",
-    "is_valid_url": "Geçerli URL mi",
+    "url_length": "URL Uzunluğu",
+    "hostname_length": "Alan Adı Uzunluğu",
+    "path_length": "Yol Uzunluğu",
+    "path_length_no_slash": "Slash Temizlenmiş Yol Uzunluğu",
+    "query_length": "Sorgu Uzunluğu",
+    "num_dots": "Nokta Sayısı",
+    "num_hyphens": "Tire Sayısı",
+    "num_underscores": "Alt Çizgi Sayısı",
+    "num_slashes": "Slash Sayısı",
+    "num_digits": "URL İçindeki Rakam Sayısı",
+    "num_params": "Parametre Sayısı",
+    "num_fragments": "Fragment İşareti Sayısı",
+    "num_at_symbols": "@ İşareti Sayısı",
+    "num_equals": "Eşittir İşareti Sayısı",
+    "num_ampersands": "Ampersand İşareti Sayısı",
+    "num_percent": "Yüzde İşareti Sayısı",
+    "num_subdomains": "Alt Alan Adı Sayısı",
+    "subdomain_depth": "Alt Alan Derinliği",
+    "has_ip": "IP Adresi Kullanıyor Mu",
+    "has_at_symbol": "@ İşareti İçeriyor Mu",
+    "has_double_slash": "Fazladan Çift Slash Var Mı",
+    "has_www": "WWW İle Başlıyor Mu",
+    "has_port": "Özel Port Kullanıyor Mu",
+    "port_number": "Port Numarası",
+    "has_hex_encoding": "Kodlanmış Karakter İçeriyor Mu",
+    "has_punycode": "Punycode İçeriyor Mu",
+    "is_shortened": "URL Kısaltıcı Mı",
+    "has_suspicious_tld": "Şüpheli Uzantı Mı",
+    "has_trusted_tld": "Güvenilir Uzantı Mı",
+    "is_net_tld": ".net Uzantısı Mı",
+    "is_edu_tld": "Eğitim Alanı Uzantısı Mı",
+    "has_abused_country_tld": "Riskli Ülke Uzantısı Mı",
+    "tld_length": "Uzantı Uzunluğu",
+    "url_entropy": "URL Karmaşıklık Skoru",
+    "domain_entropy": "Alan Adı Karmaşıklık Skoru",
+    "domain_core_entropy": "Ana Domain Karmaşıklık Skoru",
+    "domain_core_length": "Ana Domain Uzunluğu",
+    "digit_ratio": "Rakam Oranı",
+    "letter_ratio": "Harf Oranı",
+    "special_char_ratio": "Özel Karakter Oranı",
+    "vowel_ratio": "Sesli Harf Oranı",
+    "num_tokens": "Parça Sayısı",
+    "avg_token_length": "Ortalama Parça Uzunluğu",
+    "max_token_length": "En Uzun Parça Uzunluğu",
+    "max_consecutive_digits": "En Uzun Ardışık Rakam",
+    "num_suspicious_keywords": "Şüpheli Kelime Sayısı",
+    "has_suspicious_keywords": "Şüpheli Kelime İçeriyor Mu",
+    "brand_in_url": "Marka Adı URL İçinde Mi",
+    "brand_in_subdomain": "Marka Adı Alt Alanda Mı",
+    "brand_in_path": "Marka Adı Yolda Mı",
+    "url_depth": "URL Yol Derinliği",
+    "effective_url_depth": "Temizlenmiş Yol Derinliği",
+    "trailing_slash": "Sonda Slash Var Mı",
+    "is_root_path": "Ana Sayfa Yolu Mu",
+    "domain_has_digits": "Domain Rakam İçeriyor Mu",
+    "has_exec_extension": "Çalıştırılabilir Dosya Uzantısı Mı",
+    "has_script_extension": "Script Dosyası Uzantısı Mı",
+    "is_valid_url": "Geçerli URL Mi",
 }
+
+FEATURE_HINTS = {
+    "url_length": "Kanonik hale getirilmiş URL'nin toplam karakter sayısıdır.",
+    "hostname_length": "Alan adı bölümünün, yani host kısmının uzunluğunu gösterir.",
+    "path_length": "Alan adından sonra gelen yol bölümünün karakter uzunluğudur.",
+    "query_length": "Soru işaretinden sonra gelen parametre bölümünün uzunluğudur.",
+    "num_dots": "URL içindeki nokta karakterlerinin toplam sayısıdır.",
+    "num_hyphens": "URL içinde kaç tire kullanıldığını gösterir.",
+    "num_digits": "URL metnindeki toplam rakam sayısıdır.",
+    "num_params": "Query içinde tahmini kaç parametre olduğunu gösterir.",
+    "num_subdomains": "Ana domainin solundaki alt alan adı sayısıdır.",
+    "subdomain_depth": "Alt alan adlarının ne kadar derin olduğunu gösterir.",
+    "has_ip": "Alan adı yerine doğrudan IP adresi kullanılıp kullanılmadığını gösterir.",
+    "has_at_symbol": "@ işareti bazı URL'lerde gerçek hostu gizlemek için kullanılabilir.",
+    "has_double_slash": "Şema dışındaki fazladan çift slash kullanımını gösterir.",
+    "has_www": "Alan adının www ile başlayıp başlamadığını gösterir.",
+    "has_port": "URL'nin varsayılan dışında port kullanıp kullanmadığını gösterir.",
+    "port_number": "Varsa URL'de kullanılan port numarasıdır.",
+    "has_hex_encoding": "URL'de yüzde kodlamasıyla gizlenmiş karakter olup olmadığını gösterir.",
+    "has_punycode": "Uluslararası alan adlarında kullanılan punycode biçimini gösterir.",
+    "is_shortened": "URL'nin kısaltıcı servis üzerinden gelip gelmediğini gösterir.",
+    "has_suspicious_tld": "Alan adı uzantısının sık kötüye kullanılan listede olup olmadığını gösterir.",
+    "has_trusted_tld": "Alan adı uzantısının yaygın ve güvenilir kabul edilen grupta olup olmadığını gösterir.",
+    "is_edu_tld": "Alan adının eğitim kurumu uzantısı taşıyıp taşımadığını gösterir.",
+    "url_entropy": "URL'nin rastgele veya karmaşık görünüp görünmediğini ölçen değerdir.",
+    "domain_entropy": "Alan adı bölümünün karakter karmaşıklığını gösterir.",
+    "domain_core_entropy": "Ana domain etiketinin karakter karmaşıklığını gösterir.",
+    "digit_ratio": "URL içindeki rakamların tüm karakterlere oranıdır.",
+    "letter_ratio": "URL içindeki harflerin tüm karakterlere oranıdır.",
+    "special_char_ratio": "Harf ve rakam dışındaki karakterlerin oranıdır.",
+    "num_suspicious_keywords": "URL içinde yakalanan şüpheli kelime sayısıdır.",
+    "has_suspicious_keywords": "URL'nin login, verify, account gibi şüpheli kelimeler içerip içermediğini gösterir.",
+    "brand_in_url": "Marka adının URL içinde geçip geçmediğini gösterir.",
+    "brand_in_subdomain": "Marka adının alt alan adı kısmında geçip geçmediğini gösterir.",
+    "brand_in_path": "Marka adının yol kısmında geçip geçmediğini gösterir.",
+    "url_depth": "Yol bölümünün kaç parçadan oluştuğunu gösterir.",
+    "is_root_path": "URL'nin doğrudan ana sayfaya gidip gitmediğini gösterir.",
+    "domain_has_digits": "Ana domain adında rakam bulunup bulunmadığını gösterir.",
+    "has_exec_extension": "URL'nin exe, zip, msi gibi riskli dosya uzantısıyla bitip bitmediğini gösterir.",
+    "has_script_extension": "URL'nin php, asp gibi script uzantısıyla bitip bitmediğini gösterir.",
+    "is_valid_url": "URL'nin teknik olarak geçerli ayrıştırılıp ayrıştırılamadığını gösterir.",
+}
+
+DEFAULT_FEATURE_HINT = "Bu değer URL'nin yapısından çıkarılan model girdilerinden biridir."
 
 BINARY_FEATURES = {
     "has_ip",
@@ -357,6 +396,10 @@ BINARY_FEATURES = {
 
 def feature_label(key):
     return FEATURE_LABELS.get(key, key.replace("_", " ").capitalize())
+
+
+def feature_hint(key):
+    return FEATURE_HINTS.get(key, DEFAULT_FEATURE_HINT)
 
 
 def feature_value(key, val):
@@ -393,28 +436,23 @@ st.markdown(
 )
 
 examples = {
-    "Güvenli örnek": "https://google.com",
-    "Marka taklidi": "https://paypal.security-check.example.com/login",
+    "Güvenli Örnek": "https://google.com",
+    "Marka Taklidi": "https://paypal.security-check.example.com/login",
     "Kısaltıcı": "https://bit.ly/abc123",
-    "Dosya riski": "https://example.com/download/invoice.exe",
+    "Dosya Riski": "https://example.com/download/invoice.exe",
 }
 
 main_col, side_col = st.columns([1.4, .6], gap="large")
 
 with main_col:
-    st.markdown(
-        '<div class="panel"><div class="panel-note">Aşağıdaki butonlara tıklayarak örnek URL denemeleri yapabilirsiniz.</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown('<div class="panel"><div class="section-title">URL Sorgulama</div>', unsafe_allow_html=True)
+    with st.form("analysis_form"):
+        url_input = st.text_input("URL", key="url_input", placeholder="https://example.com/login?token=123")
+        analyze = st.form_submit_button("Analiz Et", type="primary", use_container_width=True)
     example_cols = st.columns(len(examples), gap="medium")
     for col, (label, value) in zip(example_cols, examples.items()):
         if col.button(label, use_container_width=True):
             st.session_state.url_input = value
-
-    st.markdown('<div class="section-title">URL Sorgulama</div>', unsafe_allow_html=True)
-    with st.form("analysis_form"):
-        url_input = st.text_input("URL", key="url_input", placeholder="https://example.com/login?token=123")
-        analyze = st.form_submit_button("Analiz et", type="primary", use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
     if analyze:
@@ -431,8 +469,8 @@ with main_col:
         band, risk_color = risk_band(prediction.probability_malicious)
         status_text = "Riskli / kötücül olabilir" if prediction.label else "Muhtemelen güvenli"
         quick_items = [
-            ("Risk bandı", band),
-            ("Güvenli olasılığı", fmt_pct(prediction.probability_safe)),
+            ("Risk Bandı", band),
+            ("Güvenli Olasılığı", fmt_pct(prediction.probability_safe)),
             ("Eşik", fmt_pct(prediction.threshold)),
         ]
 
@@ -465,20 +503,20 @@ with main_col:
 
         with tab_anatomy:
             anatomy = [
-                ("Host uzunluğu", prediction.features.get("hostname_length", 0)),
-                ("Path uzunluğu", prediction.features.get("path_length", 0)),
-                ("Query uzunluğu", prediction.features.get("query_length", 0)),
-                ("Alt alan derinliği", prediction.features.get("subdomain_depth", 0)),
-                ("Şüpheli kelime", prediction.features.get("num_suspicious_keywords", 0)),
-                ("URL uzunluğu", prediction.features.get("url_length", 0)),
-                ("IP kullanımı", "Evet" if prediction.features.get("has_ip", 0) else "Hayır"),
-                ("Kısaltıcı", "Evet" if prediction.features.get("is_shortened", 0) else "Hayır"),
+                ("Host Uzunluğu", prediction.features.get("hostname_length", 0), "Alan adı bölümünün toplam karakter uzunluğudur."),
+                ("Path Uzunluğu", prediction.features.get("path_length", 0), "Alan adından sonra gelen yol bölümünün uzunluğudur."),
+                ("Query Uzunluğu", prediction.features.get("query_length", 0), "Parametre bölümünün karakter uzunluğudur."),
+                ("Alt Alan Derinliği", prediction.features.get("subdomain_depth", 0), "Ana domainden önce kaç alt alan katmanı olduğunu gösterir."),
+                ("Şüpheli Kelime", prediction.features.get("num_suspicious_keywords", 0), "URL içinde yakalanan şüpheli kelime sayısıdır."),
+                ("URL Uzunluğu", prediction.features.get("url_length", 0), "Kanonik URL'nin toplam karakter sayısıdır."),
+                ("IP Kullanımı", "Evet" if prediction.features.get("has_ip", 0) else "Hayır", "Alan adı yerine IP adresi kullanılıp kullanılmadığını gösterir."),
+                ("Kısaltıcı", "Evet" if prediction.features.get("is_shortened", 0) else "Hayır", "URL'nin kısaltıcı servis üzerinden gelip gelmediğini gösterir."),
             ]
             st.markdown(
                 '<div class="feature-grid">'
                 + "".join(
-                    f'<div class="feature-chip"><div class="feature-name">{html.escape(str(k))}</div><div class="feature-val">{html.escape(str(v))}</div></div>'
-                    for k, v in anatomy
+                    f'<div class="feature-chip" title="{html.escape(str(h), quote=True)}"><div class="feature-name">{html.escape(str(k))}</div><div class="feature-val">{html.escape(str(v))}</div></div>'
+                    for k, v, h in anatomy
                 )
                 + "</div>",
                 unsafe_allow_html=True,
@@ -489,8 +527,9 @@ with main_col:
             for key in payload["feature_cols"]:
                 val = prediction.features.get(key, 0)
                 val_text = feature_value(key, val)
+                hint = feature_hint(key)
                 chips.append(
-                    f'<div class="feature-chip"><div class="feature-name">{html.escape(feature_label(key))}</div>'
+                    f'<div class="feature-chip" title="{html.escape(hint, quote=True)}"><div class="feature-name">{html.escape(feature_label(key))}</div>'
                     f'<div class="feature-val">{html.escape(val_text)}</div></div>'
                 )
             chips.append("</div>")
@@ -523,7 +562,7 @@ st.markdown(
   <span><strong>Test ROC-AUC:</strong> {metrics.get("roc_auc", 0):.3f}</span>
   <span><strong>Precision:</strong> {metrics.get("precision", 0):.3f}</span>
   <span><strong>Recall:</strong> {metrics.get("recall", 0):.3f}</span>
-  <span><strong>Temiz veri:</strong> {int(metrics.get("rows", 0)):,} satır</span>
+  <span><strong>Temizlenmiş Veri:</strong> {int(metrics.get("rows", 0)):,} satır</span>
   <span>Karar destek amaçlıdır; kritik güvenlik kararlarında tek kaynak olarak kullanılmamalıdır.</span>
 </div>
 """,

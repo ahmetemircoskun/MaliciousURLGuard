@@ -99,7 +99,7 @@ def extract_features(url: str) -> dict[str, float]:
     f["has_suspicious_tld"] = int(parts.tld in SUSPICIOUS_TLDS)
     f["has_trusted_tld"] = int(parts.tld in TRUSTED_TLDS)
     f["is_net_tld"] = int(parts.tld == ".net")
-    f["is_edu_tld"] = int(parts.tld == ".edu")
+    f["is_edu_tld"] = int(parts.tld in {".edu", ".edu.tr"})
     f["has_abused_country_tld"] = int(parts.tld in ABUSED_COUNTRY_TLDS)
     f["tld_length"] = len(parts.tld)
 
@@ -142,4 +142,3 @@ def extract_features(url: str) -> dict[str, float]:
     f["is_valid_url"] = int(parts.is_valid)
 
     return {name: f.get(name, 0.0) for name in FEATURE_SCHEMA}
-

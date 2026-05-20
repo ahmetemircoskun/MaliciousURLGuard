@@ -4,8 +4,6 @@ Malicious URL Guard, bir URL'nin güvenli mi yoksa phishing, malware veya deface
 
 Bu araç karar destek amaçlıdır. Güvenlik açısından kritik bir kararda tek başına kesin kanıt olarak kullanılmamalıdır.
 
-Model çıktısı, açık risk sinyallerini değerlendiren küçük bir kural katmanıyla birlikte kullanılır. Örneğin marka taklidi, IP kullanımı ve kısaltıcı URL'ler daha temkinli değerlendirilirken; açık kötüye kullanım sinyali taşımayan `.edu` kurumsal alan adları daha düşük riskli ele alınır.
-
 ## Proje Yapısı
 
 | Yol | Açıklama |
@@ -102,7 +100,7 @@ Eğitim tamamlandığında `data/processed/` altındaki CSV ve grafikler, `model
 
 | Metrik | Değer |
 | --- | ---: |
-| Temiz veri satırı | 622,784 |
+| Temizlenmiş Veri Satırı | 622,784 |
 | Kötücül oranı | 0.3358 |
 | Accuracy | 0.9184 |
 | Precision | 0.9318 |

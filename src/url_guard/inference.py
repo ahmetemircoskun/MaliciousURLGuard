@@ -59,22 +59,6 @@ def _rule_adjustment(raw_url: str, canonical_url: str, features: dict[str, float
         prob = max(prob, 0.60)
         notes.append("URL kısaltıcı gerçek hedefi gizlediği için temkinli işaretlendi.")
 
-    low_risk_education_domain = (
-        features.get("is_edu_tld", 0) == 1
-        and features.get("has_ip", 0) == 0
-        and features.get("has_at_symbol", 0) == 0
-        and features.get("has_suspicious_tld", 0) == 0
-        and features.get("is_shortened", 0) == 0
-        and features.get("brand_in_url", 0) == 0
-        and features.get("brand_in_subdomain", 0) == 0
-        and features.get("brand_in_path", 0) == 0
-        and features.get("has_exec_extension", 0) == 0
-        and features.get("num_subdomains", 0) <= 3
-    )
-    if low_risk_education_domain:
-        prob = min(prob, 0.24)
-        notes.append(".edu uzantılı kurumsal alan adı düşük riskli değerlendirildi.")
-
     first_party_brand = parts.domain_core in BRANDS
     low_risk_brand_root = (
         first_party_brand

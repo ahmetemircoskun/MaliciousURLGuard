@@ -14,7 +14,7 @@ SUSPICIOUS_TLDS = {
 
 TRUSTED_TLDS = {
     ".com", ".org", ".net", ".edu", ".gov", ".mil", ".io", ".co",
-    ".de", ".uk", ".ca", ".au", ".fr", ".nl",
+    ".de", ".uk", ".ca", ".au", ".fr", ".nl", ".edu.tr", ".gov.tr",
 }
 
 ABUSED_COUNTRY_TLDS = {".ru", ".cn", ".br", ".in", ".pk", ".ng", ".su"}
@@ -51,4 +51,3 @@ EXECUTABLE_EXTENSIONS = {
 }
 
 SCRIPT_EXTENSIONS = {".php", ".asp", ".aspx", ".cgi", ".pl", ".jsp"}
-
