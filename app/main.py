@@ -229,7 +229,7 @@ def cached_artifacts():
 
 
 @st.cache_data(show_spinner=False)
-def cached_metrics():
+def cached_metrics(metrics_mtime):
     metrics_path = os.path.join(BASE_DIR, "models", "metrics.json")
     if not os.path.exists(metrics_path):
         return {}
@@ -416,7 +416,9 @@ except FileNotFoundError:
     st.error("Model dosyaları bulunamadı. Önce `python -m url_guard.train --base-dir .` komutunu çalıştırın.")
     st.stop()
 
-metrics = cached_metrics()
+metrics_path = os.path.join(BASE_DIR, "models", "metrics.json")
+metrics_mtime = os.path.getmtime(metrics_path) if os.path.exists(metrics_path) else 0
+metrics = cached_metrics(metrics_mtime)
 
 if "url_input" not in st.session_state:
     st.session_state.url_input = ""
@@ -568,7 +570,7 @@ st.markdown(
   <span><strong>F1:</strong> {metrics.get("f1", 0):.4f}</span>
   <span><strong>ROC-AUC:</strong> {metrics.get("roc_auc", 0):.4f}</span>
   <span><strong>PR-AUC:</strong> {metrics.get("pr_auc", 0):.4f}</span>
-  <span>Karar destek amaçlıdır; kritik güvenlik kararlarında tek kaynak olarak kullanılmamalıdır.</span>
+  <span>Destek amaçlıdır, kritik güvenlik kararlarında tek kaynak olarak kullanılmamalıdır.</span>
 </div>
 """,
     unsafe_allow_html=True,
