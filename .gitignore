@@ -17,3 +17,5 @@ Thumbs.db
 .idea/
 
 .mplconfig/
+
+data/processed/cleaned_dataset.csv
