@@ -9,6 +9,7 @@ ENV/
 */.ipynb_checkpoints/*
 .pytest_cache/
 
+data/raw/malicious_phish.csv
 data/raw/malicious_phish.original_local_backup.csv
 
 .DS_Store
