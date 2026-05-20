@@ -92,15 +92,39 @@ div[data-testid="stRadio"] {
     border-radius: 8px;
     min-height: 2.55rem;
     font-weight: 740;
-    border: 1px solid rgba(148, 163, 184, .22);
+    border: 1px solid rgba(45, 212, 191, .38) !important;
+    background: linear-gradient(135deg, rgba(15, 118, 110, .96), rgba(8, 47, 73, .96)) !important;
+    color: #f8fafc !important;
     justify-content: center;
     text-align: center;
+    box-shadow: 0 10px 28px rgba(2, 6, 23, .22);
+}
+.stButton > button * {
+    color: #f8fafc !important;
+}
+.stButton > button:hover,
+.stButton > button:focus,
+.stButton > button:active {
+    border-color: rgba(45, 212, 191, .72) !important;
+    background: linear-gradient(135deg, rgba(20, 184, 166, .98), rgba(14, 116, 144, .98)) !important;
+    color: #ffffff !important;
+    box-shadow: 0 12px 34px rgba(20, 184, 166, .16);
+}
+.stButton > button:disabled {
+    background: rgba(15, 23, 42, .76) !important;
+    color: #94a3b8 !important;
+    border-color: rgba(148, 163, 184, .18) !important;
 }
 .stTextInput input {
     background: rgba(2, 6, 23, .68);
     border: 1px solid rgba(148, 163, 184, .30);
-    color: #f8fafc;
+    color: #f8fafc !important;
     border-radius: 8px;
+}
+.stTextInput label,
+div[data-testid="stRadio"] label,
+div[data-testid="stRadio"] p {
+    color: #f8fafc !important;
 }
 .result-card {
     border: 1px solid rgba(148, 163, 184, .22);
