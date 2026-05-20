@@ -47,6 +47,12 @@ st.markdown(
     margin-bottom: 1rem;
     box-shadow: 0 18px 70px rgba(0, 0, 0, .24);
 }
+div[data-testid="stRadio"] {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(8, 18, 32, .62);
+    padding: .35rem .6rem;
+}
 .title {
     font-size: clamp(2rem, 4vw, 3.45rem);
     line-height: 1;
@@ -250,19 +256,104 @@ def add_history(prediction):
     st.session_state.history = ([item] + st.session_state.history)[:8]
 
 
-def risk_band(probability):
+def t(key, lang):
+    return TEXT[lang][key]
+
+
+def translate_note(note, lang):
+    if lang == "EN":
+        return NOTE_TRANSLATIONS.get(note, note)
+    return note
+
+
+def risk_band(probability, lang):
     if probability >= 0.75:
-        return "Yüksek risk", "#fb7185"
+        return t("high_risk", lang), "#fb7185"
     if probability >= 0.55:
-        return "Dikkat gerekli", "#fbbf24"
-    return "Düşük risk", "#2dd4bf"
+        return t("medium_risk", lang), "#fbbf24"
+    return t("low_risk", lang), "#2dd4bf"
 
 
 def fmt_pct(value):
     return f"%{value * 100:.2f}"
 
 
-FEATURE_LABELS = {
+TEXT = {
+    "TR": {
+        "subtitle": "Bağlantıyı açmadan önce riskini hızlıca kontrol edin.",
+        "analyze": "Analiz Et",
+        "empty_url": "Bir URL girmen gerekiyor.",
+        "model_missing": "Model dosyaları bulunamadı. Önce `python -m url_guard.train --base-dir .` komutunu çalıştırın.",
+        "safe_example": "Güvenli Örnek",
+        "brand_spoof": "Marka Taklidi",
+        "shortener": "Kısaltıcı",
+        "file_risk": "Dosya Riski",
+        "risky_status": "Riskli / kötücül olabilir",
+        "safe_status": "Muhtemelen güvenli",
+        "risk_band": "Risk Bandı",
+        "safe_probability": "Güvenli Olasılığı",
+        "threshold": "Eşik",
+        "summary": "Özeti",
+        "anatomy": "Anatomisi",
+        "all_features": "Tüm Özellikleri",
+        "no_rule_note": "Ek kural notu yok; sonuç model skorundan geliyor.",
+        "history": "Geçmiş",
+        "no_history": "Henüz sorgu yok.",
+        "risky": "Riskli",
+        "safe": "Güvenli",
+        "low_risk": "Düşük risk",
+        "medium_risk": "Dikkat gerekli",
+        "high_risk": "Yüksek risk",
+        "yes": "Evet",
+        "no": "Hayır",
+        "footer_rows": "Temizlenmiş Veri Satırı",
+        "footer_malicious": "Kötücül Oranı",
+        "footer_note": "Destek amaçlıdır, kritik güvenlik kararlarında tek kaynak olarak kullanılmamalıdır.",
+    },
+    "EN": {
+        "subtitle": "Check a link's risk quickly before opening it.",
+        "analyze": "Analyze",
+        "empty_url": "You need to enter a URL.",
+        "model_missing": "Model files were not found. Run `python -m url_guard.train --base-dir .` first.",
+        "safe_example": "Safe Example",
+        "brand_spoof": "Brand Spoof",
+        "shortener": "Shortener",
+        "file_risk": "File Risk",
+        "risky_status": "Potentially risky / malicious",
+        "safe_status": "Probably safe",
+        "risk_band": "Risk Band",
+        "safe_probability": "Safe Probability",
+        "threshold": "Threshold",
+        "summary": "Summary",
+        "anatomy": "Anatomy",
+        "all_features": "All Features",
+        "no_rule_note": "No extra rule note; the result comes from the model score.",
+        "history": "History",
+        "no_history": "No queries yet.",
+        "risky": "Risky",
+        "safe": "Safe",
+        "low_risk": "Low risk",
+        "medium_risk": "Needs attention",
+        "high_risk": "High risk",
+        "yes": "Yes",
+        "no": "No",
+        "footer_rows": "Cleaned Data Rows",
+        "footer_malicious": "Malicious Ratio",
+        "footer_note": "For decision support only; it should not be the only source for critical security decisions.",
+    },
+}
+
+NOTE_TRANSLATIONS = {
+    "URL teknik olarak geçerli görünmüyor.": "The URL does not look technically valid.",
+    "Marka adı gerçek alan adı dışında kullanılmış.": "A brand name is used outside the real domain name.",
+    "Marka adı URL içinde geçiyor ama ana alan adı o marka değil.": "A brand name appears in the URL, but the main domain is not that brand.",
+    "Alan adı yerine IP adresi kullanılmış.": "An IP address is used instead of a domain name.",
+    "@ işareti host bilgisini yanıltıcı gösterebilir.": "The @ symbol can make the host information misleading.",
+    "URL kısaltıcı gerçek hedefi gizlediği için temkinli işaretlendi.": "The URL shortener was marked cautiously because it can hide the real target.",
+    "Bilinen markanın kendi ana alan adı gibi görünüyor.": "It looks like the known brand's own main domain.",
+}
+
+FEATURE_LABELS_TR = {
     "url_length": "URL Uzunluğu",
     "hostname_length": "Alan Adı Uzunluğu",
     "path_length": "Yol Uzunluğu",
@@ -323,7 +414,68 @@ FEATURE_LABELS = {
     "is_valid_url": "Geçerli URL Mi",
 }
 
-FEATURE_HINTS = {
+FEATURE_LABELS_EN = {
+    "url_length": "URL Length",
+    "hostname_length": "Domain Length",
+    "path_length": "Path Length",
+    "path_length_no_slash": "Path Length Without Slashes",
+    "query_length": "Query Length",
+    "num_dots": "Number Of Dots",
+    "num_hyphens": "Number Of Hyphens",
+    "num_underscores": "Number Of Underscores",
+    "num_slashes": "Number Of Slashes",
+    "num_digits": "Number Of Digits In URL",
+    "num_params": "Number Of Parameters",
+    "num_fragments": "Number Of Fragment Marks",
+    "num_at_symbols": "Number Of @ Signs",
+    "num_equals": "Number Of Equal Signs",
+    "num_ampersands": "Number Of Ampersands",
+    "num_percent": "Number Of Percent Signs",
+    "num_subdomains": "Number Of Subdomains",
+    "subdomain_depth": "Subdomain Depth",
+    "has_ip": "Uses IP Address",
+    "has_at_symbol": "Contains @ Sign",
+    "has_double_slash": "Has Extra Double Slash",
+    "has_www": "Starts With WWW",
+    "has_port": "Uses Custom Port",
+    "port_number": "Port Number",
+    "has_hex_encoding": "Contains Encoded Characters",
+    "has_punycode": "Contains Punycode",
+    "is_shortened": "Is URL Shortener",
+    "has_suspicious_tld": "Suspicious Extension",
+    "has_trusted_tld": "Trusted Extension",
+    "is_net_tld": "Uses .net Extension",
+    "is_edu_tld": "Education Domain Extension",
+    "has_abused_country_tld": "Risky Country Extension",
+    "tld_length": "Extension Length",
+    "url_entropy": "URL Complexity Score",
+    "domain_entropy": "Domain Complexity Score",
+    "domain_core_entropy": "Main Domain Complexity Score",
+    "domain_core_length": "Main Domain Length",
+    "digit_ratio": "Digit Ratio",
+    "letter_ratio": "Letter Ratio",
+    "special_char_ratio": "Special Character Ratio",
+    "vowel_ratio": "Vowel Ratio",
+    "num_tokens": "Number Of Parts",
+    "avg_token_length": "Average Part Length",
+    "max_token_length": "Longest Part Length",
+    "max_consecutive_digits": "Longest Consecutive Digits",
+    "num_suspicious_keywords": "Suspicious Keyword Count",
+    "has_suspicious_keywords": "Contains Suspicious Keywords",
+    "brand_in_url": "Brand Name In URL",
+    "brand_in_subdomain": "Brand Name In Subdomain",
+    "brand_in_path": "Brand Name In Path",
+    "url_depth": "URL Path Depth",
+    "effective_url_depth": "Cleaned Path Depth",
+    "trailing_slash": "Has Trailing Slash",
+    "is_root_path": "Is Home Page Path",
+    "domain_has_digits": "Domain Contains Digits",
+    "has_exec_extension": "Executable File Extension",
+    "has_script_extension": "Script File Extension",
+    "is_valid_url": "Valid URL",
+}
+
+FEATURE_HINTS_TR = {
     "url_length": "Kanonik hale getirilmiş URL'nin toplam karakter sayısıdır.",
     "hostname_length": "Alan adı bölümünün, yani host kısmının uzunluğunu gösterir.",
     "path_length": "Alan adından sonra gelen yol bölümünün karakter uzunluğudur.",
@@ -365,7 +517,52 @@ FEATURE_HINTS = {
     "is_valid_url": "URL'nin teknik olarak geçerli ayrıştırılıp ayrıştırılamadığını gösterir.",
 }
 
-DEFAULT_FEATURE_HINT = "Bu değer URL'nin yapısından çıkarılan model girdilerinden biridir."
+FEATURE_HINTS_EN = {
+    "url_length": "Total character count of the canonical URL.",
+    "hostname_length": "Length of the domain, also called the host section.",
+    "path_length": "Character length of the path after the domain.",
+    "query_length": "Length of the parameter section after the question mark.",
+    "num_dots": "Total number of dot characters in the URL.",
+    "num_hyphens": "Shows how many hyphens are used in the URL.",
+    "num_digits": "Total number of digits in the URL text.",
+    "num_params": "Estimated number of parameters in the query section.",
+    "num_subdomains": "Number of subdomains to the left of the main domain.",
+    "subdomain_depth": "Shows how deep the subdomain structure is.",
+    "has_ip": "Shows whether an IP address is used instead of a domain name.",
+    "has_at_symbol": "The @ sign can be used in some URLs to hide or confuse the real host.",
+    "has_double_slash": "Shows extra double slash usage outside the scheme.",
+    "has_www": "Shows whether the domain starts with www.",
+    "has_port": "Shows whether the URL uses a non-default port.",
+    "port_number": "The port number used in the URL, if present.",
+    "has_hex_encoding": "Shows whether the URL contains hidden characters through percent encoding.",
+    "has_punycode": "Shows punycode format used in internationalized domain names.",
+    "is_shortened": "Shows whether the URL comes through a URL shortening service.",
+    "has_suspicious_tld": "Shows whether the extension is in a frequently abused list.",
+    "has_trusted_tld": "Shows whether the extension is in a common trusted group.",
+    "is_edu_tld": "Shows whether the domain has an education-related extension.",
+    "url_entropy": "Measures whether the URL looks random or complex.",
+    "domain_entropy": "Shows character complexity of the domain section.",
+    "domain_core_entropy": "Shows character complexity of the main domain label.",
+    "digit_ratio": "Ratio of digits to all characters in the URL.",
+    "letter_ratio": "Ratio of letters to all characters in the URL.",
+    "special_char_ratio": "Ratio of non-letter and non-digit characters.",
+    "num_suspicious_keywords": "Number of suspicious words detected in the URL.",
+    "has_suspicious_keywords": "Shows whether the URL contains words like login, verify, or account.",
+    "brand_in_url": "Shows whether a brand name appears in the URL.",
+    "brand_in_subdomain": "Shows whether a brand name appears in the subdomain.",
+    "brand_in_path": "Shows whether a brand name appears in the path.",
+    "url_depth": "Shows how many parts the path section contains.",
+    "is_root_path": "Shows whether the URL goes directly to the home page.",
+    "domain_has_digits": "Shows whether the main domain contains digits.",
+    "has_exec_extension": "Shows whether the URL ends with a risky extension such as exe, zip, or msi.",
+    "has_script_extension": "Shows whether the URL ends with a script extension such as php or asp.",
+    "is_valid_url": "Shows whether the URL can be technically parsed as valid.",
+}
+
+DEFAULT_FEATURE_HINTS = {
+    "TR": "Bu değer URL'nin yapısından çıkarılan model girdilerinden biridir.",
+    "EN": "This value is one of the model inputs extracted from the URL structure.",
+}
 
 BINARY_FEATURES = {
     "has_ip",
@@ -394,17 +591,19 @@ BINARY_FEATURES = {
 }
 
 
-def feature_label(key):
-    return FEATURE_LABELS.get(key, key.replace("_", " ").capitalize())
+def feature_label(key, lang):
+    labels = FEATURE_LABELS_EN if lang == "EN" else FEATURE_LABELS_TR
+    return labels.get(key, key.replace("_", " ").capitalize())
 
 
-def feature_hint(key):
-    return FEATURE_HINTS.get(key, DEFAULT_FEATURE_HINT)
+def feature_hint(key, lang):
+    hints = FEATURE_HINTS_EN if lang == "EN" else FEATURE_HINTS_TR
+    return hints.get(key, DEFAULT_FEATURE_HINTS[lang])
 
 
-def feature_value(key, val):
+def feature_value(key, val, lang):
     if key in BINARY_FEATURES:
-        return "Evet" if int(val) == 1 else "Hayır"
+        return t("yes", lang) if int(val) == 1 else t("no", lang)
     if isinstance(val, float):
         return f"{val:.6f}" if abs(val) < 1 else f"{val:.4f}"
     return str(val)
@@ -413,7 +612,8 @@ def feature_value(key, val):
 try:
     payload, scaler = cached_artifacts()
 except FileNotFoundError:
-    st.error("Model dosyaları bulunamadı. Önce `python -m url_guard.train --base-dir .` komutunu çalıştırın.")
+    lang_for_error = st.session_state.get("language", "TR")
+    st.error(t("model_missing", lang_for_error))
     st.stop()
 
 metrics_path = os.path.join(BASE_DIR, "models", "metrics.json")
@@ -429,21 +629,25 @@ if "last_prediction" not in st.session_state:
 if "pending_example_url" in st.session_state:
     st.session_state.url_input = st.session_state.pop("pending_example_url")
 
+_, language_col = st.columns([0.78, 0.22])
+with language_col:
+    language = st.radio("Dil / Language", ["TR", "EN"], horizontal=True, label_visibility="collapsed", key="language")
+
 st.markdown(
-    """
+    f"""
 <div class="hero">
   <div class="title">Malicious URL Guard</div>
-  <div class="subtitle">Bağlantıyı açmadan önce riskini hızlıca kontrol edin.</div>
+  <div class="subtitle">{html.escape(t("subtitle", language))}</div>
 </div>
 """,
     unsafe_allow_html=True,
 )
 
 examples = {
-    "Güvenli Örnek": "https://google.com",
-    "Marka Taklidi": "https://paypal.security-check.example.com/login",
-    "Kısaltıcı": "https://bit.ly/abc123",
-    "Dosya Riski": "https://example.com/download/invoice.exe",
+    t("safe_example", language): "https://google.com",
+    t("brand_spoof", language): "https://paypal.security-check.example.com/login",
+    t("shortener", language): "https://bit.ly/abc123",
+    t("file_risk", language): "https://example.com/download/invoice.exe",
 }
 
 main_col, side_col = st.columns([1.4, .6], gap="large")
@@ -451,7 +655,7 @@ main_col, side_col = st.columns([1.4, .6], gap="large")
 with main_col:
     with st.form("analysis_form"):
         url_input = st.text_input("URL", key="url_input", placeholder="https://example.com/login?token=123")
-        analyze = st.form_submit_button("Analiz Et", type="primary", use_container_width=True)
+        analyze = st.form_submit_button(t("analyze", language), type="primary", use_container_width=True)
     example_cols = st.columns(len(examples), gap="medium")
     for col, (label, value) in zip(example_cols, examples.items()):
         if col.button(label, use_container_width=True):
@@ -460,7 +664,7 @@ with main_col:
 
     if analyze:
         if not url_input.strip():
-            st.warning("Bir URL girmen gerekiyor.")
+            st.warning(t("empty_url", language))
         else:
             prediction = predict_url(url_input, payload, scaler)
             st.session_state.last_prediction = prediction
@@ -469,12 +673,12 @@ with main_col:
     prediction = st.session_state.last_prediction
     if prediction:
         risk_pct = prediction.probability_malicious * 100
-        band, risk_color = risk_band(prediction.probability_malicious)
-        status_text = "Riskli / kötücül olabilir" if prediction.label else "Muhtemelen güvenli"
+        band, risk_color = risk_band(prediction.probability_malicious, language)
+        status_text = t("risky_status", language) if prediction.label else t("safe_status", language)
         quick_items = [
-            ("Risk Bandı", band),
-            ("Güvenli Olasılığı", fmt_pct(prediction.probability_safe)),
-            ("Eşik", fmt_pct(prediction.threshold)),
+            (t("risk_band", language), band),
+            (t("safe_probability", language), fmt_pct(prediction.probability_safe)),
+            (t("threshold", language), fmt_pct(prediction.threshold)),
         ]
 
         st.markdown(
@@ -496,24 +700,24 @@ with main_col:
             unsafe_allow_html=True,
         )
 
-        tab_summary, tab_anatomy, tab_features = st.tabs(["Özeti", "Anatomisi", "Tüm Özellikleri"])
+        tab_summary, tab_anatomy, tab_features = st.tabs([t("summary", language), t("anatomy", language), t("all_features", language)])
         with tab_summary:
             if prediction.notes:
                 for note in prediction.notes:
-                    st.markdown(f'<div class="note">{html.escape(note)}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="note">{html.escape(translate_note(note, language))}</div>', unsafe_allow_html=True)
             else:
-                st.markdown('<div class="empty-state">Ek kural notu yok; sonuç model skorundan geliyor.</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="empty-state">{html.escape(t("no_rule_note", language))}</div>', unsafe_allow_html=True)
 
         with tab_anatomy:
             anatomy = [
-                ("Host Uzunluğu", prediction.features.get("hostname_length", 0), "Alan adı bölümünün toplam karakter uzunluğudur."),
-                ("Path Uzunluğu", prediction.features.get("path_length", 0), "Alan adından sonra gelen yol bölümünün uzunluğudur."),
-                ("Query Uzunluğu", prediction.features.get("query_length", 0), "Parametre bölümünün karakter uzunluğudur."),
-                ("Alt Alan Derinliği", prediction.features.get("subdomain_depth", 0), "Ana domainden önce kaç alt alan katmanı olduğunu gösterir."),
-                ("Şüpheli Kelime", prediction.features.get("num_suspicious_keywords", 0), "URL içinde yakalanan şüpheli kelime sayısıdır."),
-                ("URL Uzunluğu", prediction.features.get("url_length", 0), "Kanonik URL'nin toplam karakter sayısıdır."),
-                ("IP Kullanımı", "Evet" if prediction.features.get("has_ip", 0) else "Hayır", "Alan adı yerine IP adresi kullanılıp kullanılmadığını gösterir."),
-                ("Kısaltıcı", "Evet" if prediction.features.get("is_shortened", 0) else "Hayır", "URL'nin kısaltıcı servis üzerinden gelip gelmediğini gösterir."),
+                (feature_label("hostname_length", language), prediction.features.get("hostname_length", 0), feature_hint("hostname_length", language)),
+                (feature_label("path_length", language), prediction.features.get("path_length", 0), feature_hint("path_length", language)),
+                (feature_label("query_length", language), prediction.features.get("query_length", 0), feature_hint("query_length", language)),
+                (feature_label("subdomain_depth", language), prediction.features.get("subdomain_depth", 0), feature_hint("subdomain_depth", language)),
+                (feature_label("num_suspicious_keywords", language), prediction.features.get("num_suspicious_keywords", 0), feature_hint("num_suspicious_keywords", language)),
+                (feature_label("url_length", language), prediction.features.get("url_length", 0), feature_hint("url_length", language)),
+                (feature_label("has_ip", language), t("yes", language) if prediction.features.get("has_ip", 0) else t("no", language), feature_hint("has_ip", language)),
+                (feature_label("is_shortened", language), t("yes", language) if prediction.features.get("is_shortened", 0) else t("no", language), feature_hint("is_shortened", language)),
             ]
             st.markdown(
                 '<div class="feature-grid">'
@@ -529,21 +733,21 @@ with main_col:
             chips = ['<div class="feature-grid">']
             for key in payload["feature_cols"]:
                 val = prediction.features.get(key, 0)
-                val_text = feature_value(key, val)
-                hint = feature_hint(key)
+                val_text = feature_value(key, val, language)
+                hint = feature_hint(key, language)
                 chips.append(
-                    f'<div class="feature-chip" title="{html.escape(hint, quote=True)}"><div class="feature-name">{html.escape(feature_label(key))}</div>'
+                    f'<div class="feature-chip" title="{html.escape(hint, quote=True)}"><div class="feature-name">{html.escape(feature_label(key, language))}</div>'
                     f'<div class="feature-val">{html.escape(val_text)}</div></div>'
                 )
             chips.append("</div>")
             st.markdown("".join(chips), unsafe_allow_html=True)
 
 with side_col:
-    st.markdown('<div class="panel"><div class="panel-title centered">Geçmiş</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="panel"><div class="panel-title centered">{html.escape(t("history", language))}</div>', unsafe_allow_html=True)
     if st.session_state.history:
         st.markdown('<div class="history-list">', unsafe_allow_html=True)
         for item in st.session_state.history:
-            status = "Riskli" if item["label"] else "Güvenli"
+            status = t("risky", language) if item["label"] else t("safe", language)
             color = "#fb7185" if item["label"] else "#2dd4bf"
             st.markdown(
                 f"""
@@ -556,21 +760,21 @@ with side_col:
             )
         st.markdown("</div>", unsafe_allow_html=True)
     else:
-        st.markdown('<div class="empty-state">Henüz sorgu yok.</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="empty-state">{html.escape(t("no_history", language))}</div>', unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown(
     f"""
 <div class="bottom-info">
-  <span><strong>Temizlenmiş Veri Satırı:</strong> {int(metrics.get("rows", 0)):,}</span>
-  <span><strong>Kötücül Oranı:</strong> {metrics.get("malicious_ratio", 0):.4f}</span>
+  <span><strong>{html.escape(t("footer_rows", language))}:</strong> {int(metrics.get("rows", 0)):,}</span>
+  <span><strong>{html.escape(t("footer_malicious", language))}:</strong> {metrics.get("malicious_ratio", 0):.4f}</span>
   <span><strong>Accuracy:</strong> {metrics.get("accuracy", 0):.4f}</span>
   <span><strong>Precision:</strong> {metrics.get("precision", 0):.4f}</span>
   <span><strong>Recall:</strong> {metrics.get("recall", 0):.4f}</span>
   <span><strong>F1:</strong> {metrics.get("f1", 0):.4f}</span>
   <span><strong>ROC-AUC:</strong> {metrics.get("roc_auc", 0):.4f}</span>
   <span><strong>PR-AUC:</strong> {metrics.get("pr_auc", 0):.4f}</span>
-  <span>Destek amaçlıdır, kritik güvenlik kararlarında tek kaynak olarak kullanılmamalıdır.</span>
+  <span>{html.escape(t("footer_note", language))}</span>
 </div>
 """,
     unsafe_allow_html=True,
