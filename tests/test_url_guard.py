@@ -1,3 +1,4 @@
+from url_guard.data import has_secret_shaped_token
 from url_guard.features import extract_features
 from url_guard.inference import load_artifacts, predict_url
 from url_guard.url_tools import canonicalize_url
@@ -35,3 +36,8 @@ def test_gazi_edu_tr_prediction_is_safe():
     payload, scaler = load_artifacts(".")
     prediction = predict_url("https://gazi.edu.tr", payload, scaler)
     assert prediction.label == 0
+
+
+def test_secret_shaped_dataset_urls_are_filtered():
+    assert has_secret_shaped_token("https://example.com/file?AWSAccessKeyId=AKIA6KOSE3BNJRRFUUX6")
+    assert not has_secret_shaped_token("https://example.com/login?id=123")

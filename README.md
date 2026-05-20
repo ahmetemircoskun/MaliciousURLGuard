@@ -1,22 +1,22 @@
 # Malicious URL Guard
 
-Malicious URL Guard, bir URL'nin güvenli mi yoksa phishing, malware veya defacement gibi kötücül bir örüntüye mi benzediğini tahmin eden bir makine öğrenmesi projesidir. Proje ham URL'yi önce temiz ve tutarlı bir forma çevirir, URL yapısından sayısal özellikler çıkarır, eğitilmiş modelle risk skorunu hesaplar ve sonucu Streamlit arayüzünde gösterir.
+Malicious URL Guard, URL'lerin güvenli mi yoksa phishing, malware veya defacement gibi riskli bir örüntüye mi benzediğini tahmin eden bir makine öğrenmesi projesidir.
 
-Bu araç karar destek amaçlıdır. Güvenlik açısından kritik bir kararda tek başına kesin kanıt olarak kullanılmamalıdır.
+Uygulama URL'yi tek bir tutarlı forma çevirir, alan adı ve URL yapısından özellikler çıkarır, eğitilmiş modelle risk skorunu hesaplar ve sonucu Streamlit arayüzünde gösterir.
+
+> Bu proje karar destek amaçlıdır. Kritik güvenlik kararlarında tek başına kesin kanıt olarak kullanılmamalıdır.
 
 ## Proje Yapısı
 
 | Yol | Açıklama |
 | --- | --- |
-| `app/main.py` | Streamlit tabanlı kullanıcı arayüzü. |
-| `src/url_guard/` | URL temizleme, özellik çıkarma, eğitim ve tahmin kodları. |
+| `app/main.py` | Streamlit arayüzü. |
+| `src/url_guard/` | URL ayrıştırma, özellik çıkarma, eğitim ve tahmin kodları. |
 | `src/1_Data_Preprocessing.ipynb` | Veri temizleme akışını anlatan notebook. |
 | `src/2_Model_Training.ipynb` | Model eğitim akışını anlatan notebook. |
-| `data/raw/` | Ham veri dosyasının yerel olarak konacağı klasör. |
-| `data/processed/cleaned_dataset.csv` | Temizlenmiş ve tekilleştirilmiş eğitim verisi. |
-| `data/processed/confusion_matrix.png` | Son eğitimden üretilen karmaşıklık matrisi. |
-| `data/processed/roc_curve.png` | Son eğitimden üretilen ROC eğrisi. |
-| `data/processed/precision_recall_curve.png` | Son eğitimden üretilen precision-recall eğrisi. |
+| `data/raw/malicious_phish.csv` | Ham dataset. |
+| `data/processed/cleaned_dataset.csv` | Temizlenmiş ve tekilleştirilmiş dataset. |
+| `data/processed/*.png` | Eğitimden çıkan metrik grafikleri. |
 | `models/best_model.joblib` | Eğitilmiş model, özellik sırası, eşik ve metrik bilgileri. |
 | `models/scaler.joblib` | Eğitimde kullanılan ölçekleyici. |
 | `models/metrics.json` | Son eğitim metrikleri. |
@@ -24,19 +24,20 @@ Bu araç karar destek amaçlıdır. Güvenlik açısından kritik bir kararda te
 
 ## Dataset
 
-Ham veri Kaggle üzerindeki Malicious URLs Dataset kaynağından alınır:
+Dataset bu repoda bulunur:
 
-[https://www.kaggle.com/datasets/sid321axn/malicious-urls-dataset](https://www.kaggle.com/datasets/sid321axn/malicious-urls-dataset)
+- Ham veri: `data/raw/malicious_phish.csv`
+- İşlenmiş veri: `data/processed/cleaned_dataset.csv`
 
-Telif ve dağıtım açısından ham CSV repoya eklenmez. Dosyayı Kaggle'dan indirip şu konuma koymak yeterlidir:
+Kaynak dataset:
 
-```text
-data/raw/malicious_phish.csv
-```
+[Kaggle - Malicious URLs Dataset](https://www.kaggle.com/datasets/sid321axn/malicious-urls-dataset)
+
+Public repoya uygun olması için, dataset içindeki secret formatına benzeyen URL parametreleri temizlenmiştir. Bu temizlik URL satırı seviyesinde yapılır; eğitim akışı aynı kalır.
 
 ## Kurulum
 
-macOS veya Linux:
+### macOS / Linux
 
 ```bash
 cd /Users/aecoskun/Desktop/MaliciousURLGuard
@@ -45,7 +46,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Windows:
+### Windows
 
 ```bat
 cd C:\path\to\MaliciousURLGuard
@@ -56,70 +57,86 @@ pip install -r requirements.txt
 
 ## Uygulamayı Çalıştırma
 
-macOS veya Linux:
+### macOS / Linux
 
 ```bash
 ./run.sh
 ```
 
-Windows:
+### Windows
 
 ```bat
 run.bat
 ```
 
-Elle çalıştırmak istersen:
+## Manuel Çalıştırma
+
+### macOS / Linux
 
 ```bash
 PYTHONPATH=src .venv/bin/streamlit run app/main.py
 ```
 
-Windows için eşdeğeri:
+### Windows
 
 ```bat
 set PYTHONPATH=src
 .venv\Scripts\streamlit run app\main.py
 ```
 
-## Modeli Yeniden Eğitme
+## Dataseti Yeniden Oluşturma
+
+Ham dataset dosyası `data/raw/malicious_phish.csv` konumundayken aşağıdaki komut eğitim hattını baştan çalıştırır. Bu işlem:
+
+- `data/processed/cleaned_dataset.csv` dosyasını yeniden üretir.
+- `data/processed/confusion_matrix.png` dosyasını günceller.
+- `data/processed/roc_curve.png` dosyasını günceller.
+- `data/processed/precision_recall_curve.png` dosyasını günceller.
+- `models/` altındaki model, scaler ve metrik dosyalarını günceller.
+
+### macOS / Linux
 
 ```bash
 PYTHONPATH=src MPLCONFIGDIR=.mplconfig .venv/bin/python -m url_guard.train --base-dir .
 ```
 
-Windows:
+### Windows
 
 ```bat
 set PYTHONPATH=src
 .venv\Scripts\python -m url_guard.train --base-dir .
 ```
 
-Eğitim tamamlandığında `data/processed/` altındaki CSV ve grafikler, `models/` altındaki model dosyaları ve `metrics.json` güncellenir.
-
-## Son Eğitim Metrikleri
-
-| Metrik | Değer |
-| --- | ---: |
-| Temizlenmiş Veri Satırı | 622,784 |
-| Kötücül oranı | 0.3358 |
-| Accuracy | 0.9184 |
-| Precision | 0.9318 |
-| Recall | 0.8168 |
-| F1 | 0.8705 |
-| ROC-AUC | 0.9690 |
-| PR-AUC | 0.9523 |
-
-`confusion_matrix.png`, `roc_curve.png` ve `precision_recall_curve.png` dosyaları son model eğitimiyle aynı anda üretilmiştir. Bu grafikler modelin test setindeki genel davranışını hızlı kontrol etmek için tutulur.
-
 ## Test
+
+### macOS / Linux
 
 ```bash
 PYTHONPATH=src .venv/bin/pytest -q
 ```
 
-Windows:
+### Windows
 
 ```bat
 set PYTHONPATH=src
 .venv\Scripts\pytest -q
 ```
+
+## Son Eğitim Metrikleri
+
+| Metrik | Değer |
+| --- | ---: |
+| Temizlenmiş Veri Satırı | 588,792 |
+| Kötücül Oranı | 0.3339 |
+| Accuracy | 0.9194 |
+| Precision | 0.9323 |
+| Recall | 0.8179 |
+| F1 | 0.8714 |
+| ROC-AUC | 0.9694 |
+| PR-AUC | 0.9527 |
+
+## Notlar
+
+- Raw ve processed dataset dosyaları repoda tutulur.
+- `data/raw/malicious_phish.original_local_backup.csv` sadece yerel yedektir ve git'e eklenmez.
+- Model artifact dosyaları repoda hazır gelir; uygulamayı çalıştırmak için yeniden eğitim zorunlu değildir.
